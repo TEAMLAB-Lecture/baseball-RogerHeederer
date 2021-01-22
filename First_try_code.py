@@ -5,7 +5,8 @@ def get_random_number():
     if len(set(str(random_num))) == 3:
         return random_num
     else:
-        return get_random_number()
+        return get_random_number() #재귀 스택 쌓여서. 성능 면에서 좋지않다. 스택 프레임. while로 해결할 수 있으면 while로 해결. global (정적 메모리) . 멀티 스레드 사이에서 충돌 -> 정적 변수는 지양.  대신 파라미터와 리턴 값으로 해결
+
 
 def get_not_duplicated_three_digit_number():
     #조건_ 입력값 없음 ok. 중복없는 숫자 세자리 정수값 ok. 반환타입 정수 ok.
@@ -20,8 +21,6 @@ def is_digit(user_input_number): #인풋 문자열. 아웃풋 정수 TF
 
 def is_between_100_and_999(user_input_number):
     if len(str(user_input_number)) == 3:
-        if user_input_number[0] == '0':
-            return False
         return True
     else:
         return False
@@ -35,7 +34,13 @@ def is_duplicated_number(user_input_number):
 def is_validated_number(user_input_number):
     
     if is_digit(user_input_number) and is_between_100_and_999(user_input_number) and not is_duplicated_number(user_input_number):
+        global selected_number
+        selected_number = user_input_number
         return True
+    elif user_input_number == '0':
+        print("Thank you for using this program
+        print("End of the Game")
+        exit()
     else:
         return False
 
@@ -50,6 +55,7 @@ def get_strikes_or_ball(user_input_number, random_number): # 문자열, 정수
         else:
             continue
 
+    print(f"Strikes : {strike}, Balls : {ball}")
     return [strike, ball]
 
 def is_yes(one_more_input):
@@ -69,30 +75,30 @@ def main():
     random_number = get_not_duplicated_three_digit_number() #정수값
     print("Random Number is : ", random_number)
     
-    while True:
-        user_number = input('Input guess number : ')
-        if user_number == str(0):
-            break
-        elif not is_validated_number(user_number):
-            print('Wrong Input, Input again')
-            continue
-        else: # 사용자의 입력값이 유효하다면 
-            result = get_strikes_or_ball(user_number, random_number)
-            print(f"Strikes : {result[0]}, Balls : {result[1]}")
-            if result[0] == 3:
-                again = None
-                while True:
-                    again = input('You win, one more(Y/N)?')
-                    if is_yes(again) or is_no(again): # T/F or F/T
-                        break
-                    else: # F/F
-                        print('Wrong Input, Input again')
-                
-                if is_no(again):
-                    break
-                if is_yes(again):
-                    random_number = str(get_not_duplicated_three_digit_number())
-                    print("Random Number is : ", random_number)
+    global selected_number #글로벌 변수는 전역,지역 전부 명시 필요
+    selected_number = 0
 
-    print("Thank you for using this program")
-    print("End of the Game")
+    while not is_validated_number(input('Input guess number : ')):
+        print("Wrong Input, Input again")
+    
+    while [3,0] != get_strikes_or_ball(selected_number, random_number):
+        while not is_validated_number(input('Input guess number : ')):
+            print("Wrong Input, Input again")
+
+    retry_selection = input('You win, one more(Y/N)?')
+
+    while is_yes(retry_selection) == False and is_no(retry_selection) == False:
+        retry_selection = input('Wrong Input, Input again')
+
+
+    if is_yes(retry_selection) == True and is_no(retry_selection) == False:
+        return main()
+    elif is_no(retry_selection) == True and is_yes(retry_selection) == False:
+        print("Thank you for using this program
+        print("End of the Game")
+        return
+    else:
+        return
+
+if __name__ == "__main__":
+    main()
